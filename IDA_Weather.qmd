@@ -1,0 +1,405 @@
+---
+title: "IDA_Weather"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+library(plotly)
+library(rafalib)
+```
+
+```{r}
+daily = read.csv("Data/WeatherRawData/SydneyDailyWeatherObservations/IDCJDW2124.202406-202507.csv", header = TRUE)
+rainfall = read.csv("Data/WeatherRawData/Rainfall/IDCJAC0009_066214_1800_Data.csv", header = TRUE)
+maxTemp = read.csv("Data/WeatherRawData/MaxTemp/IDCJAC0010_066214_1800_Data.csv", header = TRUE)
+minTemp = read.csv("Data/WeatherRawData/MinTemp/IDCJAC0011_066214_1800_Data.csv", header = TRUE)
+```
+
+Rename columns for rainfall (Clean rainfall)
+
+```{r}
+rainfall = rename(rainfall, Amount = Rainfall.amount..millimetres.)
+rainfall = rename(rainfall, Station = Bureau.of.Meteorology.station.number)
+rainfall = rename(rainfall, Period = Period.over.which.rainfall.was.measured..days.)
+
+rainfall = na.omit(rainfall)
+
+rainfall = rainfall %>% 
+  mutate(Date = paste(Month, "/", Day, "/", Year))
+```
+
+Clean maxTemp
+
+```{r}
+maxTemp = rename(maxTemp, Temp = Maximum.temperature..Degree.C.)
+maxTemp = rename(maxTemp, Station = Bureau.of.Meteorology.station.number)
+maxTemp = rename(maxTemp, Period = Days.of.accumulation.of.maximum.temperature)
+
+maxTemp = na.omit(maxTemp)
+
+maxTemp = maxTemp %>% 
+  mutate(Date = paste(Month, "/", Day, "/", Year))
+```
+
+Clean minTemp
+
+```{r}
+minTemp = rename(minTemp, Temp = Minimum.temperature..Degree.C.)
+minTemp = rename(minTemp, Station = Bureau.of.Meteorology.station.number)
+minTemp = rename(minTemp, Period = Days.of.accumulation.of.minimum.temperature)
+
+minTemp = na.omit(minTemp)
+
+minTemp = minTemp %>% 
+  mutate(Date = paste(Month, "/", Day, "/", Year))
+```
+
+Rainfall 2025
+
+```{r}
+rainfall2025 <- subset(rainfall, Year == "2025")
+rainfall2025$id = c(1:nrow(rainfall2025))
+rainfall2025$Highlight <- ifelse(rainfall2025$Month == "12", "Highlight", "Normal")
+
+plot2025 = ggplot(rainfall2025, aes(x = id, y = Amount, fill = Month, Date = Date)) +
+  geom_bar(stat = "identity") +
+  guides(fill = "none")
+ggplotly(plot2025)
+
+rainfall2025month <- rainfall2025 %>%
+  group_by(Month) %>%
+  summarise(SD = popsd(Amount), Mean = mean(Amount))
+
+ggplot(rainfall2025month, aes(x=Month, y=Mean)) + geom_bar(stat="identity")
+ggplot(rainfall2025month, aes(x=Month, y=SD)) + geom_bar(stat="identity")
+```
+
+Rainfall 2024
+
+```{r}
+rainfall2024 <- subset(rainfall, Year == "2024")
+rainfall2024$id = c(1:364)
+rainfall2024$Highlight <- ifelse(rainfall2024$Month == "12", "Highlight", "Normal")
+
+barplot = ggplot(rainfall2024, aes(x = id, y = Amount, fill = Highlight, Date = Date)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = c("Normal" = "grey", "Highlight" = "steelblue") )+
+  guides(fill = "none")
+ggplotly(barplot)
+
+rainfall2024month <- rainfall2024 %>%
+  group_by(Month) %>%
+  summarise(SD = popsd(Amount), Mean = mean(Amount))
+# summarise(SD = popsd(Amount), Mean = mean(Amount), Total = sum(Amount))
+
+ggplot(rainfall2024month, aes(x=Month, y=Mean)) + geom_bar(stat="identity")
+ggplot(rainfall2024month, aes(x=Month, y=SD)) + geom_bar(stat="identity")
+```
+
+Rainfall 2023
+
+```{r}
+rainfall2023 <- subset(rainfall, Year == "2023")
+rainfall2023$id = c(1:nrow(rainfall2023))
+rainfall2023$Highlight <- ifelse(rainfall2023$Month == "12", "Highlight", "Normal")
+
+plot2023 = ggplot(rainfall2023, aes(x = id, y = Amount, fill = Highlight, Date = Date)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = c("Normal" = "grey30", "Highlight" = "steelblue") )+
+  guides(fill = "none")
+ggplotly(plot2023)
+
+rainfall2023month <- rainfall2023 %>%
+  group_by(Month) %>%
+  summarise(SD = popsd(Amount), Mean = mean(Amount))
+
+ggplot(rainfall2023month, aes(x=Month, y=Mean)) + geom_bar(stat="identity")
+ggplot(rainfall2023month, aes(x=Month, y=SD)) + geom_bar(stat="identity")
+```
+
+Rainfall 2022
+
+```{r}
+rainfall2022 <- subset(rainfall, Year == "2022")
+rainfall2022$id = c(1:nrow(rainfall2022))
+
+barplot = ggplot(rainfall2022, aes(x = id, y = Amount, Date = Date)) + geom_bar(stat = "identity")
+ggplotly(barplot, tooltip="Date")
+
+rainfall2022month <- rainfall2022 %>%
+  group_by(Month) %>%
+  summarise(SD = popsd(Amount), Mean = mean(Amount))
+
+ggplot(rainfall2022month, aes(x=Month, y=Mean)) + geom_bar(stat="identity")
+ggplot(rainfall2022month, aes(x=Month, y=SD)) + geom_bar(stat="identity")
+```
+
+Rainfall 2021
+
+```{r}
+rainfall2021 <- subset(rainfall, Year == "2021")
+rainfall2021$id = c(1:nrow(rainfall2021))
+
+barplot = ggplot(rainfall2021, aes(x = id, y = Amount, Date = Date)) + geom_bar(stat = "identity")
+ggplotly(barplot, tooltip="Date")
+
+rainfall2021month <- rainfall2021 %>%
+  group_by(Month) %>%
+  summarise(SD = popsd(Amount), Mean = mean(Amount))
+
+ggplot(rainfall2021month, aes(x=Month, y=Mean)) + geom_bar(stat="identity")
+ggplot(rainfall2021month, aes(x=Month, y=SD)) + geom_bar(stat="identity")
+```
+
+Rainfall 2020
+
+```{r}
+rainfall2020 <- subset(rainfall, Year == "2020")
+rainfall2020$id = c(1:nrow(rainfall2020))
+
+barplot = ggplot(rainfall2020, aes(x = id, y = Amount, Date = Date)) + geom_bar(stat = "identity")
+ggplotly(barplot, tooltip="Date")
+
+rainfall2020month <- rainfall2020 %>%
+  group_by(Month) %>%
+  summarise(SD = popsd(Amount), Mean = mean(Amount))
+
+ggplot(rainfall2020month, aes(x=Month, y=Mean)) + geom_bar(stat="identity")
+ggplot(rainfall2020month, aes(x=Month, y=SD)) + geom_bar(stat="identity")
+```
+
+Daily maxTemp by month
+
+```{r}
+maxTemp2024month <- maxTemp%>%
+  filter(Year==2024) %>%
+  group_by(Month) %>%
+  summarise(SD = popsd(Temp), Mean = mean(Temp))
+ggplot(maxTemp2024month, aes(x=Month, y=Mean)) + geom_bar(stat="identity")
+
+maxTemp2023month <- maxTemp%>%
+  filter(Year==2023) %>%
+  group_by(Month) %>%
+  summarise(SD = popsd(Temp), Mean = mean(Temp))
+ggplot(maxTemp2023month, aes(x=Month, y=Mean)) + geom_bar(stat="identity")
+
+maxTemp2022month <- maxTemp%>%
+  filter(Year==2022) %>%
+  group_by(Month) %>%
+  summarise(SD = popsd(Temp), Mean = mean(Temp))
+ggplot(maxTemp2022month, aes(x=Month, y=Mean)) + geom_bar(stat="identity")
+
+maxTemp2021month <- maxTemp%>%
+  filter(Year==2021) %>%
+  group_by(Month) %>%
+  summarise(SD = popsd(Temp), Mean = mean(Temp))
+ggplot(maxTemp2021month, aes(x=Month, y=Mean)) + geom_bar(stat="identity")
+
+maxTemp2020month <- maxTemp%>%
+  filter(Year==2020) %>%
+  group_by(Month) %>%
+  summarise(SD = popsd(Temp), Mean = mean(Temp))
+ggplot(maxTemp2020month, aes(x=Month, y=Mean)) + geom_bar(stat="identity")
+
+summary(maxTemp2024month$Mean)
+summary(maxTemp2023month$Mean)
+summary(maxTemp2022month$Mean)
+summary(maxTemp2021month$Mean)
+summary(maxTemp2020month$Mean)
+
+popsd(maxTemp2024month$Mean)
+popsd(maxTemp2023month$Mean)
+popsd(maxTemp2022month$Mean)
+popsd(maxTemp2021month$Mean)
+popsd(maxTemp2020month$Mean)
+
+# Comment: Interesting:)) shape giong nhau phet
+# Khong thay impact gi cua COVID lam, 2022 nhiet do thap nhat -> ly do?
+```
+
+Daily minTemp by month
+
+```{r}
+minTemp2024month <- minTemp%>%
+  filter(Year==2024) %>%
+  group_by(Month) %>%
+  summarise(SD = popsd(Temp), Mean = mean(Temp))
+ggplot(minTemp2024month, aes(x=Month, y=Mean)) + geom_bar(stat="identity")
+
+minTemp2023month <- minTemp%>%
+  filter(Year==2023) %>%
+  group_by(Month) %>%
+  summarise(SD = popsd(Temp), Mean = mean(Temp))
+ggplot(minTemp2023month, aes(x=Month, y=Mean)) + geom_bar(stat="identity")
+
+minTemp2022month <- minTemp%>%
+  filter(Year==2022) %>%
+  group_by(Month) %>%
+  summarise(SD = popsd(Temp), Mean = mean(Temp))
+ggplot(minTemp2022month, aes(x=Month, y=Mean)) + geom_bar(stat="identity")
+
+minTemp2021month <- minTemp%>%
+  filter(Year==2021) %>%
+  group_by(Month) %>%
+  summarise(SD = popsd(Temp), Mean = mean(Temp))
+ggplot(minTemp2021month, aes(x=Month, y=Mean)) + geom_bar(stat="identity")
+
+minTemp2020month <- minTemp%>%
+  filter(Year==2020) %>%
+  group_by(Month) %>%
+  summarise(SD = popsd(Temp), Mean = mean(Temp))
+ggplot(minTemp2020month, aes(x=Month, y=Mean)) + geom_bar(stat="identity")
+
+summary(minTemp2024month$Mean)
+summary(minTemp2023month$Mean)
+summary(minTemp2022month$Mean)
+summary(minTemp2021month$Mean)
+summary(minTemp2020month$Mean)
+
+# Christmas - thang 12 => Vinh se can predict duoc thang 12
+# "Du hoc sinh":
+# + Chon dung dot thang 6 - 7 - 8: Ly do chinh la vi de predict hon, dang tien. Tap trung hon. Co mua
+# + Chon 4 dot dau cuoi cac ky: Tap trung hon vao "du hoc sinh" (non-Sydney). Roi rac, 
+# Expectation: Se co thay doi trong noi bo thang day - vao dung gio nay, ngay nay, ga (region) nay se co thay doi
+#Spike o airport traffic => chia ra thanh 2 khoang
+
+#
+
+popsd(minTemp2024month$Mean)
+popsd(minTemp2023month$Mean)
+popsd(minTemp2022month$Mean)
+popsd(minTemp2021month$Mean)
+popsd(minTemp2020month$Mean)
+
+# Ve shape thi trong da dang hon - diem lom khac nhau
+# SD sem sem, ko thay impact cua COVID -> giam nhiet do gi lam
+# 2021 moi thu thap nhat, min cua 2022 thap nhat
+```
+
+Daily Rainfall December
+
+```{r}
+rainfallDec2024 <- subset(rainfall, Year==2024 & Month=="12")
+rainfallDec2023 <- subset(rainfall, Year==2023 & Month=="12")
+rainfallDec2022 <- subset(rainfall, Year==2022 & Month=="12")
+rainfallDec2021 <- subset(rainfall, Year==2021 & Month=="12")
+rainfallDec2020 <- subset(rainfall, Year==2020 & Month=="12")
+
+summary(rainfallDec2024$Amount)
+summary(rainfallDec2023$Amount)
+summary(rainfallDec2022$Amount)
+summary(rainfallDec2021$Amount)
+summary(rainfallDec2020$Amount)
+
+ggplot(rainfallDec2024, aes(x=Date, y=Amount)) + geom_bar(stat="identity") + scale_y_continuous (limits = c(0, 35))
+ggplot(rainfallDec2023, aes(x=Date, y=Amount)) + geom_bar(stat="identity") + scale_y_continuous (limits = c(0, 35))
+ggplot(rainfallDec2022, aes(x=Date, y=Amount)) + geom_bar(stat="identity") + scale_y_continuous (limits = c(0, 35))
+ggplot(rainfallDec2021, aes(x=Date, y=Amount)) + geom_bar(stat="identity") + scale_y_continuous (limits = c(0, 35))
+ggplot(rainfallDec2020, aes(x=Date, y=Amount)) + geom_bar(stat="identity") + scale_y_continuous (limits = c(0, 35))
+
+ggplot(rainfallDec2024, aes(x=Date, y=Amount, group=1)) + geom_line()
+ggplot(rainfallDec2023, aes(x=Date, y=Amount, group=1)) + geom_line()
+ggplot(rainfallDec2022, aes(x=Date, y=Amount, group=1)) + geom_line()
+ggplot(rainfallDec2021, aes(x=Date, y=Amount, group=1)) + geom_line()
+ggplot(rainfallDec2020, aes(x=Date, y=Amount, group=1)) + geom_line()
+```
+
+Daily maxTemp December
+
+```{r}
+maxTempDec2024 <- subset(maxTemp, Year==2024 & Month=="12")
+maxTempDec2023 <- subset(maxTemp, Year==2023 & Month=="12")
+maxTempDec2022 <- subset(maxTemp, Year==2022 & Month=="12")
+maxTempDec2021 <- subset(maxTemp, Year==2021 & Month=="12")
+maxTempDec2020 <- subset(maxTemp, Year==2020 & Month=="12")
+maxTempDec2019 <- subset(maxTemp, Year==2019 & Month=="12")
+maxTempDec2018 <- subset(maxTemp, Year==2018 & Month=="12")
+maxTempDec2017 <- subset(maxTemp, Year==2017 & Month=="12")
+
+summary(maxTempDec2024$Temp)
+summary(maxTempDec2023$Temp)
+summary(maxTempDec2022$Temp)
+summary(maxTempDec2021$Temp)
+summary(maxTempDec2020$Temp)
+summary(maxTempDec2019$Temp)
+summary(maxTempDec2018$Temp)
+summary(maxTempDec2017$Temp)
+
+popsd(maxTempDec2024$Temp)
+popsd(maxTempDec2023$Temp)
+popsd(maxTempDec2022$Temp)
+popsd(maxTempDec2021$Temp)
+popsd(maxTempDec2020$Temp)
+popsd(maxTempDec2019$Temp)
+popsd(maxTempDec2018$Temp)
+popsd(maxTempDec2017$Temp)
+
+ggplot(maxTempDec2024, aes(x=Date, y=Temp)) + geom_bar(stat="identity") + scale_y_continuous (limits = c(0, 40))
+ggplot(maxTempDec2023, aes(x=Date, y=Temp)) + geom_bar(stat="identity") + scale_y_continuous (limits = c(0, 40))
+ggplot(maxTempDec2022, aes(x=Date, y=Temp)) + geom_bar(stat="identity") + scale_y_continuous (limits = c(0, 40))
+ggplot(maxTempDec2021, aes(x=Date, y=Temp)) + geom_bar(stat="identity") + scale_y_continuous (limits = c(0, 40))
+ggplot(maxTempDec2020, aes(x=Date, y=Temp)) + geom_bar(stat="identity") + scale_y_continuous (limits = c(0, 40))
+
+ggplot(maxTempDec2024, aes(x=Date, y=Temp, group=1)) + geom_line()
+ggplot(maxTempDec2023, aes(x=Date, y=Temp, group=1)) + geom_line()
+ggplot(maxTempDec2022, aes(x=Date, y=Temp, group=1)) + geom_line()
+ggplot(maxTempDec2021, aes(x=Date, y=Temp, group=1)) + geom_line()
+ggplot(maxTempDec2020, aes(x=Date, y=Temp, group=1)) + geom_line()
+
+# Comment:
+# 2020 - 2022 has lower maxTemp, possibly due to COVID19 - less pollution, less gas emissions...
+# 2018 also has low maxTemp -> don't know why
+# Don't see any pattern in maxTemp, looks pretty stable for all the years
+# 2024 and then 2017 has largest SD -> I wonder why, especially 2024
+# 2018 has smallest SD but that's not far from others' SD -> possibly insignificant data
+```
+
+Daily minTemp December
+
+```{r}
+minTempDec2024 <- subset(minTemp, Year==2024 & Month=="12")
+minTempDec2023 <- subset(minTemp, Year==2023 & Month=="12")
+minTempDec2022 <- subset(minTemp, Year==2022 & Month=="12")
+minTempDec2021 <- subset(minTemp, Year==2021 & Month=="12")
+minTempDec2020 <- subset(minTemp, Year==2020 & Month=="12")
+minTempDec2019 <- subset(minTemp, Year==2019 & Month=="12")
+minTempDec2018 <- subset(minTemp, Year==2018 & Month=="12")
+minTempDec2017 <- subset(minTemp, Year==2017 & Month=="12")
+
+summary(minTempDec2024$Temp)
+summary(minTempDec2023$Temp)
+summary(minTempDec2022$Temp)
+summary(minTempDec2021$Temp)
+summary(minTempDec2020$Temp)
+summary(minTempDec2019$Temp)
+summary(minTempDec2018$Temp)
+summary(minTempDec2017$Temp)
+
+popsd(minTempDec2024$Temp)
+popsd(minTempDec2023$Temp)
+popsd(minTempDec2022$Temp)
+popsd(minTempDec2021$Temp)
+popsd(minTempDec2020$Temp)
+popsd(minTempDec2019$Temp)
+popsd(minTempDec2018$Temp)
+popsd(minTempDec2017$Temp)
+
+ggplot(minTempDec2024, aes(x=Date, y=Temp)) + geom_bar(stat="identity") + scale_y_continuous (limits = c(0, 25))
+ggplot(minTempDec2023, aes(x=Date, y=Temp)) + geom_bar(stat="identity") + scale_y_continuous (limits = c(0, 25))
+ggplot(minTempDec2022, aes(x=Date, y=Temp)) + geom_bar(stat="identity") + scale_y_continuous (limits = c(0, 25))
+ggplot(minTempDec2021, aes(x=Date, y=Temp)) + geom_bar(stat="identity") + scale_y_continuous (limits = c(0, 25))
+ggplot(minTempDec2020, aes(x=Date, y=Temp)) + geom_bar(stat="identity") + scale_y_continuous (limits = c(0, 25))
+
+ggplot(minTempDec2024, aes(x=Date, y=Temp, group=1)) + geom_line()
+ggplot(minTempDec2023, aes(x=Date, y=Temp, group=1)) + geom_line()
+ggplot(minTempDec2022, aes(x=Date, y=Temp, group=1)) + geom_line()
+ggplot(minTempDec2021, aes(x=Date, y=Temp, group=1)) + geom_line()
+ggplot(minTempDec2020, aes(x=Date, y=Temp, group=1)) + geom_line()
+
+# Comment:
+# Difference between COVID and non-COVID periods is less significant here. The pattern is still visible if looking at q1, q2, q3, mean (not min and max)
+# 2022 has lowest minTemp -> I wonder why? Is it because of COVID or is there any other reason?
+# 2021 and 2022 has highest SD -> Not too far from other SD's tho so I wonder if that worths noting
+```

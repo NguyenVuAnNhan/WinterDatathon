@@ -1,0 +1,148 @@
+---
+title: "ProcessWeatherData"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+library(plotly)
+library(rafalib)
+```
+
+```{r}
+rawFolder = "Data/WeatherRawData/"
+
+rainfall_066214 = read.csv(rawFolder + "Rainfall_066214/IDCJAC0009_066214_1800_Data.csv", header = TRUE)
+rainfall_066006 = read.csv(rawFolder + "Rainfall_066006/IDCJAC0009_066006_1800_Data.csv", header = TRUE)
+rainfall_066013 = read.csv(rawFolder + "Rainfall_066013/IDCJAC0009_066013_1800_Data.csv", header = TRUE)
+rainfall_066124 = read.csv(rawFolder + "Rainfall_066124/IDCJAC0009_066124_1800_Data.csv", header = TRUE)
+rainfall_066213 = read.csv(rawFolder + "Rainfall_066213/IDCJAC0009_066213_1800_Data.csv", header = TRUE)
+
+maxTemp_066214 = read.csv(rawFolder + "MaxTemp_066214/IDCJAC0010_066214_1800_Data.csv", header = TRUE)
+minTemp_066214 = read.csv(rawFolder + "MinTemp_066214/IDCJAC0011_066214_1800_Data.csv", header = TRUE)
+
+minTemp_066124 = read.csv(rawFolder + "MinTemp_066124/IDCJAC0011_066124_1800_Data.csv", header = TRUE)
+maxTemp_066124 = read.csv(rawFolder + "MaxTemp_066124/IDCJAC0010_066124_1800_Data.csv", header = TRUE)
+
+maxTemp_066212 = read.csv(rawFolder + "MaxTemp_066212/IDCJAC0010_066212_1800_Data.csv", header = TRUE)
+minTemp_066212 = read.csv(rawFolder + "MinTemp_066212/IDCJAC0011_066212_1800_Data.csv", header = TRUE)
+
+```
+
+Clean rainfall
+
+```{r}
+rainfall_066214 = rename(rainfall_066214, Rainfall = Rainfall.amount..millimetres.)
+rainfall_066214 <- subset(rainfall_066214, (Year>=2022 & Month==12)|(Year>=2023 & Month==1 & Day==1))
+
+rainfall_066006 = rename(rainfall_066006, Rainfall = Rainfall.amount..millimetres.)
+rainfall_066006 <- subset(rainfall_066006, (Year>=2022 & Month==12)|(Year>=2023 & Month==1 & Day==1))
+
+rainfall_066013 = rename(rainfall_066013, Rainfall = Rainfall.amount..millimetres.)
+rainfall_066013 <- subset(rainfall_066013, (Year>=2022 & Month==12)|(Year>=2023 & Month==1 & Day==1))
+
+rainfall_066124 = rename(rainfall_066124, Rainfall = Rainfall.amount..millimetres.)
+rainfall_066124 <- subset(rainfall_066124, (Year>=2022 & Month==12)|(Year>=2023 & Month==1 & Day==1))
+
+rainfall_066213 = rename(rainfall_066213, Rainfall = Rainfall.amount..millimetres.)
+rainfall_066213 <- subset(rainfall_066213, (Year>=2022 & Month==12)|(Year>=2023 & Month==1 & Day==1))
+
+```
+
+Clean maxTemp
+
+```{r}
+maxTemp_066214 = rename(maxTemp_066214, MaxTemp = Maximum.temperature..Degree.C.)
+maxTemp_066214 <- subset(maxTemp_066214, (Year>=2022 & Month==12)|(Year>=2023 & Month==1 & Day==1))
+
+maxTemp_066124 = rename(maxTemp_066124, MaxTemp = Maximum.temperature..Degree.C.)
+maxTemp_066124 <- subset(maxTemp_066124, (Year>=2022 & Month==12)|(Year>=2023 & Month==1 & Day==1))
+
+maxTemp_066212 = rename(maxTemp_066212, MaxTemp = Maximum.temperature..Degree.C.)
+maxTemp_066212 <- subset(maxTemp_066212, (Year>=2022 & Month==12)|(Year>=2023 & Month==1 & Day==1))
+
+```
+
+Clean minTemp_066214
+
+```{r}
+minTemp_066214 = rename(minTemp_066214, MinTemp = Minimum.temperature..Degree.C.)
+minTemp_066214$MinTemp <- c(minTemp_066214$MinTemp[-1], 0)
+minTemp_066214 <- minTemp_066214[-nrow(minTemp_066214), ]
+minTemp_066214 <- subset(minTemp_066214, (Year>=2022 & Month==12)|(Year>=2023 & Month==1 & Day==1))
+
+minTemp_066124 = rename(minTemp_066124, MinTemp = Minimum.temperature..Degree.C.)
+minTemp_066124$MinTemp <- c(minTemp_066124$MinTemp[-1], 0)
+minTemp_066124 <- minTemp_066124[-nrow(minTemp_066124), ]
+minTemp_066124 <- subset(minTemp_066124, (Year>=2022 & Month==12)|(Year>=2023 & Month==1 & Day==1))
+
+minTemp_066212 = rename(minTemp_066212, MinTemp = Minimum.temperature..Degree.C.)
+minTemp_066212$MinTemp <- c(minTemp_066212$MinTemp[-1], 0)
+minTemp_066212 <- minTemp_066212[-nrow(minTemp_066212), ]
+minTemp_066212 <- subset(minTemp_066212, (Year>=2022 & Month==12)|(Year>=2023 & Month==1 & Day==1))
+```
+
+```{r}
+cleanFolder = "/Users/Admin/WinterDatathon/Data/WeatherAtRegions/"
+
+# North Sydney region takes all weather data from the Observatory Hill Weather Station (station number: 066214, 3.27km away)
+NorthSydney <- data.frame(
+  Region = "North Sydney",
+  Date = as.Date(ISOdate(rainfall_066214$Year, rainfall_066214$Month, rainfall_066214$Day)),
+  Rainfall = rainfall_066214$Rainfall,
+  MaxTemp = maxTemp_066214$MaxTemp,
+  MinTemp = minTemp_066214$MinTemp
+)
+write.csv(NorthSydney, cleanFolder + "NorthSydney.csv", row.names = FALSE)
+
+# Chatswood region takes rainfall data from the North Ryde Golf Club Weather Station (station number: 066213, 5.12km away), and maximum and minimum temperature data from the Observatory Hill Weather Station (station number: 066214, 9.33km away)
+Chatswood <- data.frame(
+  Region = "Chatswood",
+  Date = as.Date(ISOdate(rainfall_066214$Year, rainfall_066214$Month, rainfall_066214$Day)),
+  Rainfall = rainfall_066213$Rainfall,
+  MaxTemp = maxTemp_066214$MaxTemp,
+  MinTemp = minTemp_066214$MinTemp
+)
+write.csv(Chatswood, cleanFolder + "Chatswood.csv", row.names = FALSE)
+
+# Macquarie Park region takes rainfall data from the North Ryde Golf Club Weather Station (station number: 066213, 3.37km away), and maximum and minimum temperature data from the Sydney Olympic Park Weather Station (station number: 066212, 8.33km away)
+MacquariePark <- data.frame(
+  Region = "Macquarie Park",
+  Date = as.Date(ISOdate(rainfall_066213$Year, rainfall_066213$Month, rainfall_066213$Day)),
+  Rainfall = rainfall_066213$Rainfall,
+  MaxTemp = maxTemp_066212$MaxTemp,
+  MinTemp = minTemp_066212$MinTemp
+)
+write.csv(MacquariePark, cleanFolder + "MacquariePark.csv", row.names = FALSE)
+
+# Sydney CBD region takes all weather data from the Observatory Hill Weather Station (station number: 066214, 1.28km away)
+SydneyCBD <- data.frame(
+  Region = "Sydney CBD",
+  Date = as.Date(ISOdate(rainfall_066214$Year, rainfall_066214$Month, rainfall_066214$Day)),
+  Rainfall = rainfall_066214$Rainfall,
+  MaxTemp = maxTemp_066214$MaxTemp,
+  MinTemp = minTemp_066214$MinTemp
+)
+write.csv(SydneyCBD, cleanFolder + "SydneyCBD.csv", row.names = FALSE)
+
+# Parramatta region takes all weather data from the Parramatta North Weather Station (station number: 066124, 3.54km away)
+Parramatta <- data.frame(
+  Region = "Parramatta",
+  Date = as.Date(ISOdate(rainfall_066124$Year, rainfall_066124$Month, rainfall_066124$Day)),
+  Rainfall = rainfall_066124$Rainfall,
+  MaxTemp = maxTemp_066124$MaxTemp,
+  MinTemp = minTemp_066124$MinTemp
+)
+write.csv(Parramatta, cleanFolder + "Parramatta.csv", row.names = FALSE)
+
+# Strathfield region takes rainfall data from the Concord Golf Club Weather Station (station number: 066013, 2.11km away), and maximum and minimum temperature data from the Sydney Olympic Park Weather Station (station number: 066212, 4.34km away)
+Strathfield <- data.frame(
+  Region = "Strathfield",
+  Date = as.Date(ISOdate(rainfall_066013$Year, rainfall_066013$Month, rainfall_066013$Day)),
+  Rainfall = rainfall_066013$Rainfall,
+  MaxTemp = maxTemp_066212$MaxTemp,
+  MinTemp = minTemp_066212$MinTemp
+)
+write.csv(Strathfield, cleanFolder + "Strathfield.csv", row.names = FALSE)
+```
